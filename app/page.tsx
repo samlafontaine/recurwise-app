@@ -20,6 +20,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { categories, CategoryType } from "@/app/components/categories";
 import { Filter } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 import {
   formatDistanceToNow,
   addDays,
@@ -409,7 +410,10 @@ export default function Home() {
             <div className="absolute inset-0 -top-20 bg-gradient-to-t from-white to-transparent pointer-events-none" />
             <div className="absolute inset-0 -bottom-20 bg-gradient-to-b from-white to-transparent pointer-events-none" />
             <DialogTrigger asChild>
-              <Button className="w-full relative">Add Subscription</Button>
+              <Button className="w-full relative">
+                <PlusIcon />
+                Add Subscription
+              </Button>
             </DialogTrigger>
           </div>
           <DialogContent className="sm:max-w-[425px] sm:h-auto h-[100dvh] p-0 sm:p-6">
@@ -557,7 +561,13 @@ export default function Home() {
                   </Button>
                 )}
                 <Button type="submit" className="w-full">
-                  {editingId ? "Save Changes" : "Add Subscription"}
+                  {editingId ? (
+                    "Save Changes"
+                  ) : (
+                    <>
+                      <PlusIcon /> Add Subscription
+                    </>
+                  )}
                 </Button>
               </div>
             </form>
