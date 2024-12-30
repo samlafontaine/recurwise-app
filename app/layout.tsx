@@ -19,7 +19,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body
+        className="font-sans antialiased bg-gray-50"
+        style={{ fontFamily: "Geist, sans-serif" }}
+      >
         {children}
       </body>
     </html>

@@ -68,10 +68,10 @@ const getNextRenewal = (startDate: Date, frequency: string) => {
 export function SubscriptionCard({ sub, onEdit }: SubscriptionCardProps) {
   return (
     <div
-      className="border rounded-lg px-4 py-2 relative"
+      className="border rounded-lg px-4 py-2 relative bg-white hover:border-gray-300"
       onClick={() => onEdit(sub)}
     >
-      <div className="cursor-pointer hover:border-blue-500 transition-colors">
+      <div className="cursor-pointer transition-colors">
         <div className="flex justify-between items-start">
           <h3 className="font-semibold">{sub.title}</h3>
           {sub.notifyBeforeRenewal && (
