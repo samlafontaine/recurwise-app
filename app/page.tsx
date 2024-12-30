@@ -104,7 +104,34 @@ export default function Home() {
       const subscriptionsWithDates = data.map((sub) => ({
         ...sub,
         startDate: new Date(sub.start_date),
+        notifyBeforeRenewal: sub.notify_before_renewal,
       }));
+
+      const getNextRenewalDate = (startDate: Date, frequency: string) => {
+        let nextDate = new Date(startDate);
+        const today = new Date();
+
+        while (nextDate <= today) {
+          switch (frequency) {
+            case "weekly":
+              nextDate = addWeeks(nextDate, 1);
+              break;
+            case "monthly":
+              nextDate = addMonths(nextDate, 1);
+              break;
+            case "yearly":
+              nextDate = addYears(nextDate, 1);
+              break;
+          }
+        }
+        return nextDate;
+      };
+
+      subscriptionsWithDates.sort((a, b) => {
+        const nextRenewalA = getNextRenewalDate(a.startDate, a.frequency);
+        const nextRenewalB = getNextRenewalDate(b.startDate, b.frequency);
+        return nextRenewalA.getTime() - nextRenewalB.getTime();
+      });
 
       setSubscriptions(subscriptionsWithDates);
     } catch (error) {
@@ -315,7 +342,7 @@ export default function Home() {
       <main className="max-w-2xl mx-auto">
         <div className="flex justify-between items-center mb-6 max-w-2xl mx-auto">
           <h1 className="text-2xl font-bold">Recurwise</h1>
-          <Button variant="ghost" size="sm" onClick={handleLogout}>
+          <Button variant="link" size="sm" onClick={handleLogout}>
             Log out
           </Button>
         </div>
@@ -378,13 +405,15 @@ export default function Home() {
             if (!isOpen) resetForm();
           }}
         >
-          <DialogTrigger asChild>
-            <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 w-[calc(100%-4rem)] max-w-2xl">
-              <Button className="w-full">Add Subscription</Button>
-            </div>
-          </DialogTrigger>
-          <DialogContent className="max-w-full h-screen w-screen">
-            <DialogHeader>
+          <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 w-[calc(100%-4rem)] max-w-2xl">
+            <div className="absolute inset-0 -top-20 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+            <div className="absolute inset-0 -bottom-20 bg-gradient-to-b from-white to-transparent pointer-events-none" />
+            <DialogTrigger asChild>
+              <Button className="w-full relative">Add Subscription</Button>
+            </DialogTrigger>
+          </div>
+          <DialogContent className="sm:max-w-[425px] sm:h-auto h-[100dvh] p-0 sm:p-6">
+            <DialogHeader className="p-6 sm:p-0">
               <DialogTitle>
                 {editingId
                   ? `Edit ${formData.title || "Subscription"}`
@@ -393,10 +422,7 @@ export default function Home() {
                     : "Add New Subscription"}
               </DialogTitle>
             </DialogHeader>
-            <form
-              onSubmit={handleSubmit}
-              className="space-y-4 relative h-full pb-24"
-            >
+            <form onSubmit={handleSubmit} className="space-y-4 p-6 sm:p-0">
               <div className="space-y-2">
                 <Label htmlFor="title">Title</Label>
                 <Input
@@ -471,20 +497,6 @@ export default function Home() {
                 </Select>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="notify"
-                  checked={formData.notifyBeforeRenewal}
-                  onCheckedChange={(checked) =>
-                    setFormData({
-                      ...formData,
-                      notifyBeforeRenewal: checked === true,
-                    })
-                  }
-                />
-                <Label htmlFor="notify">Notify before renewal</Label>
-              </div>
-
               <div className="space-y-2">
                 <Label htmlFor="startDate">Start Date</Label>
                 <Popover>
@@ -517,7 +529,21 @@ export default function Home() {
                 </Popover>
               </div>
 
-              <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 w-[calc(100%-4rem)] max-w-2xl space-y-2">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="notify"
+                  checked={formData.notifyBeforeRenewal}
+                  onCheckedChange={(checked) =>
+                    setFormData({
+                      ...formData,
+                      notifyBeforeRenewal: checked === true,
+                    })
+                  }
+                />
+                <Label htmlFor="notify">Notify before renewal</Label>
+              </div>
+
+              <div className="fixed sm:relative bottom-0 left-0 right-0 p-6 sm:p-0 bg-white border-t sm:border-0 space-y-2">
                 {editingId && (
                   <Button
                     type="button"

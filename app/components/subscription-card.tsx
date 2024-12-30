@@ -1,6 +1,7 @@
 import { categories } from "@/app/components/categories";
 import { formatDistanceToNow, addWeeks, addMonths, addYears } from "date-fns";
 import { CategoryType } from "@/app/components/categories";
+import { Bell } from "lucide-react";
 
 interface Subscription {
   id: string;
@@ -67,11 +68,18 @@ const getNextRenewal = (startDate: Date, frequency: string) => {
 export function SubscriptionCard({ sub, onEdit }: SubscriptionCardProps) {
   return (
     <div
-      className="border rounded px-4 py-2 relative"
+      className="border rounded-lg px-4 py-2 relative"
       onClick={() => onEdit(sub)}
     >
       <div className="cursor-pointer hover:border-blue-500 transition-colors">
-        <h3 className="font-semibold">{sub.title}</h3>
+        <div className="flex justify-between items-start">
+          <h3 className="font-semibold">{sub.title}</h3>
+          {sub.notifyBeforeRenewal && (
+            <span className="text-xs">
+              <Bell size={16} />
+            </span>
+          )}
+        </div>
         <p className="text-sm text-gray-600">
           {categories.find((c) => c.value === sub.category)?.icon}{" "}
           {categories.find((c) => c.value === sub.category)?.label}
@@ -82,11 +90,8 @@ export function SubscriptionCard({ sub, onEdit }: SubscriptionCardProps) {
         <p
           className={`text-sm ${isWithinWeek(sub.startDate, sub.frequency) ? "text-red-500" : "text-gray-600"}`}
         >
-          Next renewal: {getNextRenewal(sub.startDate, sub.frequency)}
+          Renews {getNextRenewal(sub.startDate, sub.frequency)}
         </p>
-        {sub.notifyBeforeRenewal && (
-          <p className="text-sm text-blue-500">Notifications enabled</p>
-        )}
       </div>
     </div>
   );
