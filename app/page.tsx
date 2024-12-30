@@ -23,7 +23,6 @@ import { Filter } from "lucide-react";
 import { PlusIcon } from "lucide-react";
 import {
   formatDistanceToNow,
-  addDays,
   addWeeks,
   addMonths,
   addYears,
@@ -272,53 +271,6 @@ export default function Home() {
 
   const getActiveCategories = () => {
     return Array.from(new Set(subscriptions.map((sub) => sub.category)));
-  };
-
-  const getNextRenewal = (startDate: Date, frequency: string) => {
-    const today = new Date();
-    let nextDate = new Date(startDate);
-
-    while (nextDate <= today) {
-      switch (frequency) {
-        case "weekly":
-          nextDate = addWeeks(nextDate, 1);
-          break;
-        case "monthly":
-          nextDate = addMonths(nextDate, 1);
-          break;
-        case "yearly":
-          nextDate = addYears(nextDate, 1);
-          break;
-      }
-    }
-
-    const distance = formatDistanceToNow(nextDate, { addSuffix: true });
-
-    if (distance === "in less than a minute") return "today";
-    if (distance === "in 1 day") return "tomorrow";
-    return distance;
-  };
-
-  const isWithinWeek = (startDate: Date, frequency: string) => {
-    const today = new Date();
-    let nextDate = new Date(startDate);
-
-    while (nextDate <= today) {
-      switch (frequency) {
-        case "weekly":
-          nextDate = addWeeks(nextDate, 1);
-          break;
-        case "monthly":
-          nextDate = addMonths(nextDate, 1);
-          break;
-        case "yearly":
-          nextDate = addYears(nextDate, 1);
-          break;
-      }
-    }
-
-    const weekFromNow = addWeeks(today, 1);
-    return nextDate <= weekFromNow;
   };
 
   const handleLogout = async () => {
