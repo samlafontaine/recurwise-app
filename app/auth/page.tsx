@@ -41,7 +41,6 @@ export default function AuthPage() {
         supabaseClient={supabase}
         appearance={{ theme: ThemeSupa }}
         providers={["google"]}
-        redirectTo={`${window.location.origin}/`}
       />
     </div>
   );
