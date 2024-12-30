@@ -21,13 +21,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { categories, CategoryType } from "@/app/components/categories";
 import { Filter } from "lucide-react";
 import { PlusIcon } from "lucide-react";
-import {
-  formatDistanceToNow,
-  addWeeks,
-  addMonths,
-  addYears,
-  format,
-} from "date-fns";
+import { addWeeks, addMonths, addYears, format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
