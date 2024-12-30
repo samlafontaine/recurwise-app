@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -35,6 +35,9 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { SubscriptionCard } from "@/app/components/subscription-card";
+import { useRouter } from "next/navigation";
 
 interface Subscription {
   id: string;
@@ -68,6 +71,48 @@ export default function Home() {
     startDate: new Date(),
   });
   const [showCategories, setShowCategories] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) {
+        router.push("/auth");
+      }
+    };
+
+    checkAuth();
+  }, [router]);
+
+  useEffect(() => {
+    loadSubscriptions();
+  }, []);
+
+  const loadSubscriptions = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from("subscriptions")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      const subscriptionsWithDates = data.map((sub) => ({
+        ...sub,
+        startDate: new Date(sub.start_date),
+      }));
+
+      setSubscriptions(subscriptionsWithDates);
+    } catch (error) {
+      console.error("Error loading subscriptions:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const resetForm = () => {
     setFormData({
@@ -81,25 +126,74 @@ export default function Home() {
     setEditingId(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (editingId) {
-      setSubscriptions(
-        subscriptions.map((sub) =>
-          sub.id === editingId ? { ...formData, id: editingId } : sub,
-        ),
-      );
-    } else {
-      const newSubscription = {
-        ...formData,
-        id: crypto.randomUUID(),
-      };
-      setSubscriptions([...subscriptions, newSubscription]);
-    }
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) {
+        router.push("/auth");
+        return;
+      }
 
-    resetForm();
-    setOpen(false);
+      if (editingId) {
+        const { error } = await supabase
+          .from("subscriptions")
+          .update({
+            title: formData.title,
+            category: formData.category,
+            amount: formData.amount,
+            frequency: formData.frequency,
+            notify_before_renewal: formData.notifyBeforeRenewal,
+            start_date: formData.startDate.toISOString(),
+            user_id: session.user.id,
+          })
+          .eq("id", editingId);
+
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("subscriptions").insert([
+          {
+            id: crypto.randomUUID(),
+            title: formData.title,
+            category: formData.category,
+            amount: formData.amount,
+            frequency: formData.frequency,
+            notify_before_renewal: formData.notifyBeforeRenewal,
+            start_date: formData.startDate.toISOString(),
+            user_id: session.user.id,
+          },
+        ]);
+
+        if (error) throw error;
+      }
+
+      await loadSubscriptions();
+      resetForm();
+      setOpen(false);
+    } catch (error) {
+      console.error("Error saving subscription:", error);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this subscription?")) return;
+
+    try {
+      const { error } = await supabase
+        .from("subscriptions")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+
+      await loadSubscriptions();
+      setOpen(false);
+    } catch (error) {
+      console.error("Error deleting subscription:", error);
+    }
   };
 
   const handleEdit = (subscription: Subscription) => {
@@ -199,6 +293,14 @@ export default function Home() {
     return nextDate <= weekFromNow;
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-gray-600">Loading subscriptions...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen p-8">
       <main className="max-w-2xl mx-auto">
@@ -239,37 +341,11 @@ export default function Home() {
                   {subscriptions
                     .filter((sub) => sub.category === category)
                     .map((sub) => (
-                      <div
+                      <SubscriptionCard
                         key={sub.id}
-                        className="border rounded px-4 py-2 cursor-pointer hover:border-blue-500 transition-colors"
-                        onClick={() => handleEdit(sub)}
-                      >
-                        <h3 className="font-semibold">{sub.title}</h3>
-                        <p className="text-sm text-gray-600">
-                          {
-                            categories.find((c) => c.value === sub.category)
-                              ?.icon
-                          }{" "}
-                          {
-                            categories.find((c) => c.value === sub.category)
-                              ?.label
-                          }
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          ${sub.amount} • {sub.frequency}
-                        </p>
-                        <p
-                          className={`text-sm ${isWithinWeek(sub.startDate, sub.frequency) ? "text-red-500" : "text-gray-600"}`}
-                        >
-                          Next renewal:{" "}
-                          {getNextRenewal(sub.startDate, sub.frequency)}
-                        </p>
-                        {sub.notifyBeforeRenewal && (
-                          <p className="text-sm text-blue-500">
-                            Notifications enabled
-                          </p>
-                        )}
-                      </div>
+                        sub={sub}
+                        onEdit={handleEdit}
+                      />
                     ))}
                 </div>
               </div>
@@ -277,30 +353,7 @@ export default function Home() {
           ) : (
             <div className="space-y-4">
               {subscriptions.map((sub) => (
-                <div
-                  key={sub.id}
-                  className="border rounded px-4 py-2 cursor-pointer hover:border-blue-500 transition-colors"
-                  onClick={() => handleEdit(sub)}
-                >
-                  <h3 className="font-semibold">{sub.title}</h3>
-                  <p className="text-sm text-gray-600">
-                    {categories.find((c) => c.value === sub.category)?.icon}{" "}
-                    {categories.find((c) => c.value === sub.category)?.label}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    ${sub.amount} • {sub.frequency}
-                  </p>
-                  <p
-                    className={`text-sm ${isWithinWeek(sub.startDate, sub.frequency) ? "text-red-500" : "text-gray-600"}`}
-                  >
-                    Next renewal: {getNextRenewal(sub.startDate, sub.frequency)}
-                  </p>
-                  {sub.notifyBeforeRenewal && (
-                    <p className="text-sm text-blue-500">
-                      Notifications enabled
-                    </p>
-                  )}
-                </div>
+                <SubscriptionCard key={sub.id} sub={sub} onEdit={handleEdit} />
               ))}
             </div>
           )}
@@ -452,7 +505,19 @@ export default function Home() {
                 </Popover>
               </div>
 
-              <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 w-[calc(100%-4rem)] max-w-2xl">
+              <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 w-[calc(100%-4rem)] max-w-2xl space-y-2">
+                {editingId && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    className="w-full"
+                    onClick={() => {
+                      handleDelete(editingId);
+                    }}
+                  >
+                    Delete Subscription
+                  </Button>
+                )}
                 <Button type="submit" className="w-full">
                   {editingId ? "Save Changes" : "Add Subscription"}
                 </Button>
