@@ -15,6 +15,8 @@ export const categories = [
   { label: "Hobbies", value: "hobbies", icon: "🎨" },
   { label: "Transit", value: "transit", icon: "🚗" },
   { label: "Finance", value: "finance", icon: "🏦" },
+  { label: "Internet", value: "internet", icon: "🛜" },
+  { label: "Mobile", value: "mobile", icon: "📱" },
 ] as const;
 
 export type CategoryType = (typeof categories)[number]["value"];
