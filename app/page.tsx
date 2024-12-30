@@ -313,12 +313,9 @@ export default function Home() {
   return (
     <div className="min-h-screen p-8">
       <main className="max-w-2xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-6 max-w-2xl mx-auto">
           <h1 className="text-2xl font-bold">Recurwise</h1>
-        </div>
-
-        <div className="absolute top-4 right-4">
-          <Button variant="outline" size="sm" onClick={handleLogout}>
+          <Button variant="ghost" size="sm" onClick={handleLogout}>
             Log out
           </Button>
         </div>
