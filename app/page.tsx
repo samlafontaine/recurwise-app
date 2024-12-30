@@ -293,6 +293,15 @@ export default function Home() {
     return nextDate <= weekFromNow;
   };
 
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error("Error logging out:", error);
+    } else {
+      router.push("/auth");
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -306,6 +315,12 @@ export default function Home() {
       <main className="max-w-2xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Recurwise</h1>
+        </div>
+
+        <div className="absolute top-4 right-4">
+          <Button variant="outline" size="sm" onClick={handleLogout}>
+            Log out
+          </Button>
         </div>
 
         <div className="flex flex-row justify-between items-end mb-4">
