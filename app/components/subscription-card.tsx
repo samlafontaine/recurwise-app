@@ -73,25 +73,42 @@ export function SubscriptionCard({ sub, onEdit }: SubscriptionCardProps) {
     >
       <div className="cursor-pointer transition-colors">
         <div className="flex justify-between items-start">
-          <h3 className="font-semibold">{sub.title}</h3>
-          {sub.notifyBeforeRenewal && (
-            <span className="text-xs">
-              <Bell size={16} />
+          <div className="flex items-center gap-1">
+            <h3 className="font-semibold">{sub.title}</h3>
+            {sub.notifyBeforeRenewal && (
+              <span className="text-xs">
+                <Bell size={16} />
+              </span>
+            )}
+          </div>
+          <div>
+            <span className="text-gray-600">${sub.amount}</span>
+            <span className="text-gray-600">
+              {sub.frequency === "monthly"
+                ? "/mo"
+                : sub.frequency === "yearly"
+                  ? "/yr"
+                  : sub.frequency === "weekly"
+                    ? "/wk"
+                    : `/${sub.frequency}`}
             </span>
-          )}
+          </div>
         </div>
-        <p className="text-sm text-gray-600">
-          {categories.find((c) => c.value === sub.category)?.icon}{" "}
-          {categories.find((c) => c.value === sub.category)?.label}
-        </p>
-        <p className="text-sm text-gray-600">
-          ${sub.amount} • {sub.frequency}
-        </p>
-        <p
-          className={`text-sm ${isWithinWeek(sub.startDate, sub.frequency) ? "text-red-500" : "text-gray-600"}`}
-        >
-          Renews {getNextRenewal(sub.startDate, sub.frequency)}
-        </p>
+        <div className="flex justify-between items-center mt-1">
+          <p className="text-sm text-gray-600 flex items-center gap-1">
+            {categories.find((c) => c.value === sub.category)?.icon}{" "}
+            {categories.find((c) => c.value === sub.category)?.label}
+          </p>
+          <p
+            className={`text-sm ${
+              isWithinWeek(sub.startDate, sub.frequency)
+                ? "text-red-500"
+                : "text-gray-600"
+            }`}
+          >
+            Renews {getNextRenewal(sub.startDate, sub.frequency)}
+          </p>
+        </div>
       </div>
     </div>
   );

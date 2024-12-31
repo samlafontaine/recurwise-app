@@ -379,9 +379,9 @@ export default function Home() {
                   </div>
                 </DialogTrigger>
               </div>
-              <DialogContent className="sm:max-w-[425px] h-screen sm:h-auto p-0 overflow-y-auto">
-                <div className="flex flex-col h-full">
-                  <DialogHeader className="p-6 sm:p-0 sticky top-0">
+              <DialogContent className="sm:max-w-[425px] h-screen sm:h-auto p-6 overflow-y-auto space-y-4">
+                <form onSubmit={handleSubmit} className="flex flex-col h-full">
+                  <DialogHeader className="sm:p-0">
                     <DialogTitle>
                       {editingId
                         ? `Edit ${formData.title || "Subscription"}`
@@ -391,8 +391,8 @@ export default function Home() {
                     </DialogTitle>
                   </DialogHeader>
 
-                  <div className="flex-1 p-6 sm:p-0 overflow-y-auto">
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="flex-1 sm:p-0">
+                    <div className="space-y-4 mb-4">
                       <div className="space-y-2">
                         <Label htmlFor="title">Title</Label>
                         <Input
@@ -517,10 +517,10 @@ export default function Home() {
                         />
                         <Label htmlFor="notify">Notify before renewal</Label>
                       </div>
-                    </form>
+                    </div>
                   </div>
 
-                  <div className="mt-auto p-6 sm:p-0 bg-white sticky bottom-0 flex flex-row justify-between gap-1">
+                  <div className="mt-auto sm:p-0 bg-white border-t sm:border-0 space-y-2">
                     {editingId && (
                       <Button
                         type="button"
@@ -541,7 +541,7 @@ export default function Home() {
                       )}
                     </Button>
                   </div>
-                </div>
+                </form>
               </DialogContent>
             </Dialog>
           )}
