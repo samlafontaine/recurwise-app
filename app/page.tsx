@@ -379,148 +379,154 @@ export default function Home() {
                   </div>
                 </DialogTrigger>
               </div>
-              <DialogContent className="sm:max-w-[425px] sm:h-auto h-[100dvh] p-0 sm:p-6">
-                <DialogHeader className="p-6 sm:p-0">
-                  <DialogTitle>
-                    {editingId
-                      ? `Edit ${formData.title || "Subscription"}`
-                      : formData.title
-                        ? `New Subscription: ${formData.title}`
-                        : "Add New Subscription"}
-                  </DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4 p-6 sm:p-0">
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Title</Label>
-                    <Input
-                      id="title"
-                      value={formData.title}
-                      onChange={(e) =>
-                        setFormData({ ...formData, title: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
+              <DialogContent className="sm:max-w-[425px] h-screen sm:h-auto p-0 overflow-y-auto">
+                <div className="flex flex-col h-full">
+                  <DialogHeader className="p-6 sm:p-0 sticky top-0">
+                    <DialogTitle>
+                      {editingId
+                        ? `Edit ${formData.title || "Subscription"}`
+                        : formData.title
+                          ? `New Subscription: ${formData.title}`
+                          : "Add New Subscription"}
+                    </DialogTitle>
+                  </DialogHeader>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="category">Category</Label>
-                    <Select
-                      value={formData.category}
-                      onValueChange={(value: CategoryType) =>
-                        setFormData({ ...formData, category: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem
-                            key={category.value}
-                            value={category.value}
-                          >
-                            <span className="flex items-center gap-2">
-                              {category.icon} {category.label}
-                            </span>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <div className="flex-1 p-6 sm:p-0 overflow-y-auto">
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="title">Title</Label>
+                        <Input
+                          id="title"
+                          value={formData.title}
+                          onChange={(e) =>
+                            setFormData({ ...formData, title: e.target.value })
+                          }
+                          required
+                        />
+                      </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="amount">Amount</Label>
-                    <Input
-                      id="amount"
-                      type="number"
-                      step="1"
-                      placeholder="0.00"
-                      value={formData.amount || ""}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          amount: parseFloat(e.target.value) || 0,
-                        })
-                      }
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="frequency">Frequency</Label>
-                    <Select
-                      value={formData.frequency}
-                      onValueChange={(value) =>
-                        setFormData({
-                          ...formData,
-                          frequency: value as "weekly" | "monthly" | "yearly",
-                        })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="weekly">Weekly</SelectItem>
-                        <SelectItem value="monthly">Monthly</SelectItem>
-                        <SelectItem value="yearly">Yearly</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="startDate">Start Date</Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          className="w-full justify-start text-left font-normal"
+                      <div className="space-y-2">
+                        <Label htmlFor="category">Category</Label>
+                        <Select
+                          value={formData.category}
+                          onValueChange={(value: CategoryType) =>
+                            setFormData({ ...formData, category: value })
+                          }
                         >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {formData.startDate ? (
-                            format(formData.startDate, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar
-                          mode="single"
-                          selected={formData.startDate}
-                          onSelect={(date) =>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categories.map((category) => (
+                              <SelectItem
+                                key={category.value}
+                                value={category.value}
+                              >
+                                <span className="flex items-center gap-2">
+                                  {category.icon} {category.label}
+                                </span>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="amount">Amount</Label>
+                        <Input
+                          id="amount"
+                          type="number"
+                          step="1"
+                          placeholder="0.00"
+                          value={formData.amount || ""}
+                          onChange={(e) =>
                             setFormData({
                               ...formData,
-                              startDate: date || new Date(),
+                              amount: parseFloat(e.target.value) || 0,
                             })
                           }
-                          initialFocus
                         />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="notify"
-                      checked={formData.notifyBeforeRenewal}
-                      onCheckedChange={(checked) =>
-                        setFormData({
-                          ...formData,
-                          notifyBeforeRenewal: checked === true,
-                        })
-                      }
-                    />
-                    <Label htmlFor="notify">Notify before renewal</Label>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="frequency">Frequency</Label>
+                        <Select
+                          value={formData.frequency}
+                          onValueChange={(value) =>
+                            setFormData({
+                              ...formData,
+                              frequency: value as
+                                | "weekly"
+                                | "monthly"
+                                | "yearly",
+                            })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="weekly">Weekly</SelectItem>
+                            <SelectItem value="monthly">Monthly</SelectItem>
+                            <SelectItem value="yearly">Yearly</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="startDate">Start Date</Label>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant={"outline"}
+                              className="w-full justify-start text-left font-normal"
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {formData.startDate ? (
+                                format(formData.startDate, "PPP")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0">
+                            <Calendar
+                              mode="single"
+                              selected={formData.startDate}
+                              onSelect={(date) =>
+                                setFormData({
+                                  ...formData,
+                                  startDate: date || new Date(),
+                                })
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="notify"
+                          checked={formData.notifyBeforeRenewal}
+                          onCheckedChange={(checked) =>
+                            setFormData({
+                              ...formData,
+                              notifyBeforeRenewal: checked === true,
+                            })
+                          }
+                        />
+                        <Label htmlFor="notify">Notify before renewal</Label>
+                      </div>
+                    </form>
                   </div>
 
-                  <div className="fixed sm:relative bottom-0 left-0 right-0 p-6 sm:p-0 bg-white border-t sm:border-0 space-y-2">
+                  <div className="mt-auto p-6 sm:p-0 bg-white sticky bottom-0 flex flex-row justify-between gap-1">
                     {editingId && (
                       <Button
                         type="button"
                         variant="destructive"
                         className="w-full"
-                        onClick={() => {
-                          handleDelete(editingId);
-                        }}
+                        onClick={() => handleDelete(editingId)}
                       >
                         Delete Subscription
                       </Button>
@@ -535,7 +541,7 @@ export default function Home() {
                       )}
                     </Button>
                   </div>
-                </form>
+                </div>
               </DialogContent>
             </Dialog>
           )}
