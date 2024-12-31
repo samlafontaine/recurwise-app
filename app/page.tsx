@@ -379,10 +379,13 @@ export default function Home() {
                   </div>
                 </DialogTrigger>
               </div>
-              <DialogContent className="h-screen sm:h-auto p-6 overflow-y-auto space-y-4">
-                <form onSubmit={handleSubmit} className="flex flex-col h-full">
-                  <DialogHeader className="sm:p-0">
-                    <DialogTitle>
+              <DialogContent className="h-screen sm:h-auto p-6 overflow-y-auto">
+                <form
+                  onSubmit={handleSubmit}
+                  className="flex flex-col h-full space-y-4"
+                >
+                  <DialogHeader className="sm:p-0 relative">
+                    <DialogTitle className="text-center pt-4">
                       {editingId
                         ? `Edit ${formData.title || "Subscription"}`
                         : formData.title
