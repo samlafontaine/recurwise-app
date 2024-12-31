@@ -33,6 +33,9 @@ import { supabase } from "@/lib/supabase";
 import { SubscriptionCard } from "@/app/components/subscription-card";
 import { useRouter } from "next/navigation";
 import SubscriptionsListEmpty from "@/app/components/subscription-list-empty";
+import { MoreVertical } from "lucide-react";
+import { LayoutGrid } from "lucide-react";
+import { LogOut } from "lucide-react";
 
 interface Subscription {
   id: string;
@@ -65,7 +68,8 @@ export default function Home() {
     notifyBeforeRenewal: false,
     startDate: new Date(),
   });
-  const [showCategories, setShowCategories] = useState(false);
+  const [showCategoriesDialog, setShowCategoriesDialog] = useState(false);
+  const [showCategoryGrouping, setShowCategoryGrouping] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
@@ -291,9 +295,41 @@ export default function Home() {
         <main className="max-w-2xl mx-auto h-[calc(100vh-4rem)] flex flex-col">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold">Recurwise</h1>
-            <Button variant="link" size="sm" onClick={handleLogout}>
-              Log out
-            </Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-1" align="end">
+                <div className="flex flex-col space-y-2">
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start"
+                    onClick={() => {
+                      setShowCategoriesDialog(true);
+                      const popoverTrigger = document.querySelector(
+                        '[data-state="open"]',
+                      );
+                      if (popoverTrigger) {
+                        (popoverTrigger as HTMLButtonElement).click();
+                      }
+                    }}
+                  >
+                    <LayoutGrid className="h-4 w-4 mr-2" />
+                    Categories
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Log out
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
 
           {subscriptions.length > 0 ? (
@@ -308,14 +344,14 @@ export default function Home() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setShowCategories(!showCategories)}
-                  className={showCategories ? "bg-secondary" : ""}
+                  onClick={() => setShowCategoryGrouping(!showCategoryGrouping)}
+                  className={showCategoryGrouping ? "bg-secondary" : ""}
                 >
                   <Filter className="h-4 w-4" />
                 </Button>
               </div>
               <div className="space-y-6">
-                {showCategories ? (
+                {showCategoryGrouping ? (
                   getActiveCategories().map((category) => (
                     <div key={category} className="space-y-4">
                       <div className="flex justify-between items-center">
@@ -548,6 +584,41 @@ export default function Home() {
               </DialogContent>
             </Dialog>
           )}
+
+          <Dialog
+            open={showCategoriesDialog}
+            onOpenChange={setShowCategoriesDialog}
+          >
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle className="text-center pt-4">
+                  Categories
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-2">
+                {[...categories]
+                  .sort(
+                    (a, b) =>
+                      calculateCategoryTotal(b.value) -
+                      calculateCategoryTotal(a.value),
+                  )
+                  .map((category) => (
+                    <div
+                      key={category.value}
+                      className="flex items-center justify-between"
+                    >
+                      <div className="flex items-center gap-2">
+                        {category.icon}
+                        <span className="text-sm">{category.label}</span>
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        ${calculateCategoryTotal(category.value).toFixed(0)}/mo
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </DialogContent>
+          </Dialog>
         </main>
       </div>
     </div>
