@@ -379,7 +379,7 @@ export default function Home() {
                   </div>
                 </DialogTrigger>
               </div>
-              <DialogContent className="sm:max-w-[425px] h-screen sm:h-auto p-6 overflow-y-auto space-y-4">
+              <DialogContent className="h-screen sm:h-auto p-6 overflow-y-auto space-y-4">
                 <form onSubmit={handleSubmit} className="flex flex-col h-full">
                   <DialogHeader className="sm:p-0">
                     <DialogTitle>
