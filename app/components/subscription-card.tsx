@@ -73,16 +73,14 @@ export function SubscriptionCard({ sub, onEdit }: SubscriptionCardProps) {
     >
       <div className="cursor-pointer transition-colors">
         <div className="flex justify-between items-start">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             <h3 className="font-semibold">{sub.title}</h3>
             {sub.notifyBeforeRenewal && (
-              <span className="text-xs">
-                <Bell size={16} />
-              </span>
+              <div className="w-2 h-2 rounded-full bg-green-500" />
             )}
           </div>
-          <div>
-            <span className="text-gray-600">${sub.amount}</span>
+          <div className="flex items-center gap-1">
+            <span>${sub.amount}</span>
             <span className="text-gray-600">
               {sub.frequency === "monthly"
                 ? "/mo"
