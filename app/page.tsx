@@ -59,7 +59,6 @@ interface FormData extends Omit<Subscription, "id"> {
 
 export default function Home() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
-  const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<FormData>({
@@ -201,8 +200,6 @@ export default function Home() {
       resetForm();
       if (editingId) {
         setShowEditDialog(false);
-      } else {
-        setShowAddDialog(false);
       }
     } catch (error) {
       console.error("Error saving subscription:", error);
@@ -271,10 +268,6 @@ export default function Home() {
         }
         return total + monthlyAmount;
       }, 0);
-  };
-
-  const getActiveCategories = () => {
-    return Array.from(new Set(subscriptions.map((sub) => sub.category)));
   };
 
   const handleLogout = async () => {

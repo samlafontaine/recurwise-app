@@ -1,7 +1,6 @@
 import { categories } from "@/app/components/categories";
 import { formatDistanceToNow, addWeeks, addMonths, addYears } from "date-fns";
 import { CategoryType } from "@/app/components/categories";
-import { Bell } from "lucide-react";
 
 interface Subscription {
   id: string;

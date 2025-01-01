@@ -1,14 +1,9 @@
-import { useState } from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { PlusIcon } from "lucide-react";
 import { categories, CategoryType } from "@/app/components/categories";
 
 interface CategoriesDialogProps {
@@ -24,20 +19,6 @@ export function CategoriesDialog({
   subscriptions,
   calculateCategoryTotal,
 }: CategoriesDialogProps) {
-  const [showAddCategory, setShowAddCategory] = useState(false);
-  const [newCategory, setNewCategory] = useState({ label: "", value: "" });
-
-  const handleAddCategory = () => {
-    // Here you would typically:
-    // 1. Validate the input
-    // 2. Add to your categories list
-    // 3. Update your database
-    // 4. Close the dialog
-    console.log("New category:", newCategory);
-    setShowAddCategory(false);
-    setNewCategory({ label: "", value: "" });
-  };
-
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
