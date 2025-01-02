@@ -32,9 +32,7 @@ import { supabase } from "@/lib/supabase";
 import { SubscriptionCard } from "@/app/components/subscription-card";
 import { useRouter } from "next/navigation";
 import SubscriptionsListEmpty from "@/app/components/subscription-list-empty";
-import { MoreVertical } from "lucide-react";
-import { LayoutGrid } from "lucide-react";
-import { LogOut } from "lucide-react";
+import { MoreVertical, LayoutGrid, LogOut, HelpCircle } from "lucide-react";
 import { CategoriesDialog } from "@/app/components/categories-dialog";
 
 interface Subscription {
@@ -331,7 +329,7 @@ export default function Home() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="rounded-full bg-gray-100 hover:bg-gray-200 "
+                          className="rounded-full bg-gray-100 hover:bg-gray-200 hidden"
                         >
                           <PlusIcon className="" />
                         </Button>
@@ -488,18 +486,25 @@ export default function Home() {
 
                           <div className="mt-auto space-y-2">
                             {editingId && (
-                              <Button
-                                type="button"
-                                variant="destructive"
-                                className="w-full"
-                                onClick={() => handleDelete(editingId)}
-                              >
-                                Delete Subscription
+                              <div className="flex gap-2">
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  className="w-full"
+                                  onClick={() => handleDelete(editingId)}
+                                >
+                                  Delete Subscription
+                                </Button>
+                                <Button type="submit" className="w-full">
+                                  Save Changes
+                                </Button>
+                              </div>
+                            )}
+                            {!editingId && (
+                              <Button type="submit" className="w-full">
+                                Add Subscription
                               </Button>
                             )}
-                            <Button type="submit" className="w-full">
-                              {editingId ? "Save Changes" : "Add Subscription"}
-                            </Button>
                           </div>
                         </form>
                       </DialogContent>
@@ -660,18 +665,25 @@ export default function Home() {
 
                           <div className="mt-auto space-y-2">
                             {editingId && (
-                              <Button
-                                type="button"
-                                variant="destructive"
-                                className="w-full"
-                                onClick={() => handleDelete(editingId)}
-                              >
-                                Delete Subscription
+                              <div className="flex gap-2">
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  className="w-full"
+                                  onClick={() => handleDelete(editingId)}
+                                >
+                                  Delete Subscription
+                                </Button>
+                                <Button type="submit" className="w-full">
+                                  Save Changes
+                                </Button>
+                              </div>
+                            )}
+                            {!editingId && (
+                              <Button type="submit" className="w-full">
+                                Add Subscription
                               </Button>
                             )}
-                            <Button type="submit" className="w-full">
-                              {editingId ? "Save Changes" : "Add Subscription"}
-                            </Button>
                           </div>
                         </form>
                       </DialogContent>
@@ -703,6 +715,16 @@ export default function Home() {
                           >
                             <LayoutGrid className="h-4 w-4 mr-2" />
                             Categories
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            className="w-full justify-start"
+                            asChild
+                          >
+                            <a href="mailto:recurwise@gmail.com">
+                              <HelpCircle className="h-4 w-4 mr-2" />
+                              Support
+                            </a>
                           </Button>
                           <Button
                             variant="ghost"
@@ -894,18 +916,25 @@ export default function Home() {
 
               <div className="mt-auto space-y-2">
                 {editingId && (
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    className="w-full"
-                    onClick={() => handleDelete(editingId)}
-                  >
-                    Delete Subscription
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      className="w-full"
+                      onClick={() => handleDelete(editingId)}
+                    >
+                      Delete Subscription
+                    </Button>
+                    <Button type="submit" className="w-full">
+                      Save Changes
+                    </Button>
+                  </div>
+                )}
+                {!editingId && (
+                  <Button type="submit" className="w-full">
+                    Add Subscription
                   </Button>
                 )}
-                <Button type="submit" className="w-full">
-                  {editingId ? "Save Changes" : "Add Subscription"}
-                </Button>
               </div>
             </form>
           </DialogContent>
