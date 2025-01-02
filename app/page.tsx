@@ -306,11 +306,11 @@ export default function Home() {
   return (
     <>
       <div className="min-h-screen p-8">
-        <main className="max-w-2xl mx-auto">
+        <main className="max-w-2xl mx-auto mb-32">
           {subscriptions.length > 0 ? (
             <>
               <div>
-                <div className="flex flex-row justify-between items-end mb-4">
+                <div className="sticky top-0 flex flex-row justify-between items-end mb-4 bg-gray-50 z-10 py-4">
                   <div
                     className="flex flex-row gap-1 items-end cursor-pointer hover:opacity-75 transition-opacity rounded-lg p-2 hover:bg-gray-100"
                     onClick={() => setShowYearlyTotal(!showYearlyTotal)}
