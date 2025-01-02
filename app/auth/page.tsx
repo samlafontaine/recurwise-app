@@ -39,7 +39,31 @@ export default function AuthPage() {
     <div className="max-w-md mx-auto mt-10 p-6">
       <Auth
         supabaseClient={supabase}
-        appearance={{ theme: ThemeSupa }}
+        appearance={{
+          theme: ThemeSupa,
+          variables: {
+            default: {
+              colors: {
+                brand: "black",
+                brandAccent: "#333",
+                inputBackground: "white",
+                inputBorder: "lightgray",
+                inputBorderHover: "gray",
+                inputBorderFocus: "black",
+              },
+            },
+          },
+          style: {
+            button: {
+              borderRadius: "6px",
+              fontSize: "14px",
+              fontWeight: "500",
+            },
+            input: {
+              borderRadius: "6px",
+            },
+          },
+        }}
         providers={["google"]}
       />
     </div>
