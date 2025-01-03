@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ export default function RootLayout({
         style={{ fontFamily: "Geist, sans-serif" }}
       >
         {children}
+        <Toaster />
       </body>
     </html>
   );

@@ -34,6 +34,7 @@ import { useRouter } from "next/navigation";
 import SubscriptionsListEmpty from "@/app/components/subscription-list-empty";
 import { MoreVertical, LayoutGrid, LogOut, HelpCircle } from "lucide-react";
 import { CategoriesDialog } from "@/app/components/categories-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 interface Subscription {
   id: string;
@@ -70,6 +71,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const [showYearlyTotal, setShowYearlyTotal] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -199,8 +201,25 @@ export default function Home() {
       if (editingId) {
         setShowEditDialog(false);
       }
+      toast({
+        title: editingId ? "Subscription updated" : "Subscription added",
+        description: (
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-green-500" />
+            <span>
+              {formData.title} was {editingId ? "updated" : "added"}{" "}
+              successfully
+            </span>
+          </div>
+        ),
+      });
     } catch (error) {
       console.error("Error saving subscription:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save subscription",
+        variant: "destructive",
+      });
     }
   };
 
@@ -208,17 +227,33 @@ export default function Home() {
     if (!confirm("Are you sure you want to delete this subscription?")) return;
 
     try {
+      const subscription = subscriptions.find((sub) => sub.id === id);
       const { error } = await supabase
         .from("subscriptions")
         .delete()
         .eq("id", id);
-
       if (error) throw error;
 
       await loadSubscriptions();
       setShowEditDialog(false);
+      toast({
+        title: "Subscription deleted",
+        description: (
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-red-500" />
+            <span>
+              {subscription?.title || "Subscription"} was deleted successfully
+            </span>
+          </div>
+        ),
+      });
     } catch (error) {
       console.error("Error deleting subscription:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete subscription",
+        variant: "destructive",
+      });
     }
   };
 
