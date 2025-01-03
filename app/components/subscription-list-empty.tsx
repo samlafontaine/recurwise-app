@@ -7,12 +7,9 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { CreditCard, LogOut, HelpCircle, MoreVertical } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 export default function SubscriptionsListEmpty() {
-  const router = useRouter();
-
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
