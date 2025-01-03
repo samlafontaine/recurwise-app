@@ -1,6 +1,7 @@
 import { categories } from "@/app/components/categories";
 import { formatDistanceToNow, addWeeks, addMonths, addYears } from "date-fns";
 import { CategoryType } from "@/app/components/categories";
+import { Bell } from "lucide-react";
 
 interface Subscription {
   id: string;
@@ -74,9 +75,7 @@ export function SubscriptionCard({ sub, onEdit }: SubscriptionCardProps) {
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-2">
             <h3 className="font-semibold">{sub.title}</h3>
-            {sub.notifyBeforeRenewal && (
-              <div className="w-2 h-2 rounded-full bg-green-500" />
-            )}
+            {sub.notifyBeforeRenewal && <Bell className="h-3 w-3 text-black" />}
           </div>
           <div className="flex items-center gap-1">
             <span>${sub.amount}</span>

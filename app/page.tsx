@@ -766,7 +766,7 @@ export default function Home() {
           )}
         </main>
       </div>
-      <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2">
+      <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2">
         <Dialog>
           <DialogTrigger asChild>
             <Button size="lg" className="rounded-full px-6">
