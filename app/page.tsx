@@ -351,8 +351,12 @@ export default function Home() {
                     <p className="text-2xl font-bold">
                       $
                       {showYearlyTotal
-                        ? calculateYearlyTotal().toFixed(0)
-                        : calculateMonthlyTotal().toFixed(0)}
+                        ? calculateYearlyTotal().toLocaleString("en-US", {
+                            maximumFractionDigits: 0,
+                          })
+                        : calculateMonthlyTotal().toLocaleString("en-US", {
+                            maximumFractionDigits: 0,
+                          })}
                     </p>
                     <p className="text-xs mb-1">
                       per {showYearlyTotal ? "year" : "month"}
