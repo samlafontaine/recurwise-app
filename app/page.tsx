@@ -32,7 +32,13 @@ import { supabase } from "@/lib/supabase";
 import { SubscriptionCard } from "@/app/components/subscription-card";
 import { useRouter } from "next/navigation";
 import SubscriptionsListEmpty from "@/app/components/subscription-list-empty";
-import { MoreVertical, LayoutGrid, LogOut, HelpCircle } from "lucide-react";
+import {
+  MoreVertical,
+  LayoutGrid,
+  LogOut,
+  HelpCircle,
+  ArrowUpCircle,
+} from "lucide-react";
 import { CategoriesDialog } from "@/app/components/categories-dialog";
 import { useToast } from "@/hooks/use-toast";
 
@@ -807,6 +813,15 @@ export default function Home() {
                           >
                             <LogOut className="h-4 w-4 mr-2" />
                             Log out
+                          </Button>
+                          <div className="h-px bg-gray-100 w-full" />
+                          <Button
+                            variant="ghost"
+                            className="w-full justify-start rounded-full opacity-50 cursor-not-allowed"
+                            disabled
+                          >
+                            <ArrowUpCircle className="h-4 w-4 mr-2" />
+                            Upgrade
                           </Button>
                         </div>
                       </PopoverContent>
