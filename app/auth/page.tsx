@@ -65,6 +65,7 @@ export default function AuthPage() {
           },
         }}
         providers={["google"]}
+        redirectTo={`${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`}
       />
     </div>
   );
