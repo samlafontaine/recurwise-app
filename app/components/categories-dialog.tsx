@@ -43,7 +43,10 @@ export function CategoriesDialog({
                     className="flex items-center justify-between p-2 rounded-lg border"
                   >
                     <div className="flex items-center gap-2">
-                      {category.icon}
+                      {(() => {
+                        const Icon = category.icon;
+                        return <Icon className="h-4 w-4" />;
+                      })()}
                       <span className="text-sm">{category.label}</span>
                     </div>
                     <div className="text-sm text-gray-500">

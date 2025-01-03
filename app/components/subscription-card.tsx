@@ -92,7 +92,12 @@ export function SubscriptionCard({ sub, onEdit }: SubscriptionCardProps) {
         </div>
         <div className="flex justify-between items-center mt-1">
           <p className="text-sm text-gray-600 flex items-center gap-1">
-            {categories.find((c) => c.value === sub.category)?.icon}{" "}
+            {(() => {
+              const Icon = categories.find(
+                (c) => c.value === sub.category,
+              )?.icon;
+              return Icon && <Icon className="h-4 w-4" />;
+            })()}{" "}
             {categories.find((c) => c.value === sub.category)?.label}
           </p>
           <p
