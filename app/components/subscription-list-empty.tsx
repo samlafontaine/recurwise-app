@@ -12,12 +12,16 @@ import { supabase } from "@/lib/supabase";
 export default function SubscriptionsListEmpty() {
   const handleLogout = async () => {
     try {
+      // Sign out from Supabase
       await supabase.auth.signOut();
+      // Clear any persisted session data
+      window.localStorage.removeItem("supabase.auth.token");
+      // Force clear all storage and reload
+      window.localStorage.clear();
+      window.location.href = "/auth";
     } catch (error) {
       console.error("Error logging out:", error);
-      // Continue with redirect even if signOut fails
-    } finally {
-      // Always redirect to auth page, regardless of whether signOut succeeds or fails
+      // Force redirect even if there's an error
       window.location.href = "/auth";
     }
   };
