@@ -14,11 +14,14 @@ export default function SubscriptionsListEmpty() {
   const router = useRouter();
 
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
       console.error("Error logging out:", error);
-    } else {
-      router.push("/auth");
+      // Continue with redirect even if signOut fails
+    } finally {
+      // Always redirect to auth page, regardless of whether signOut succeeds or fails
+      window.location.href = "/auth";
     }
   };
 
