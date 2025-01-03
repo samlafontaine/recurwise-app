@@ -41,6 +41,7 @@ import {
 } from "lucide-react";
 import { CategoriesDialog } from "@/app/components/categories-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Subscription {
   id: string;
@@ -78,6 +79,7 @@ export default function Home() {
   const router = useRouter();
   const [showYearlyTotal, setShowYearlyTotal] = useState(false);
   const { toast } = useToast();
+  const [view, setView] = useState<"date" | "category" | "amount">("date");
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -334,6 +336,31 @@ export default function Home() {
     }
   };
 
+  const getMonthlyAmount = (sub: Subscription) => {
+    switch (sub.frequency) {
+      case "weekly":
+        return (sub.amount * 52) / 12;
+      case "yearly":
+        return sub.amount / 12;
+      default:
+        return sub.amount;
+    }
+  };
+
+  const groupByCategory = () => {
+    const grouped = categories
+      .map((category) => ({
+        ...category,
+        subscriptions: subscriptions.filter(
+          (sub) => sub.category === category.value,
+        ),
+        monthlyTotal: calculateCategoryTotal(category.value),
+      }))
+      .filter((group) => group.subscriptions.length > 0);
+
+    return grouped.sort((a, b) => b.monthlyTotal - a.monthlyTotal);
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -344,246 +371,47 @@ export default function Home() {
 
   return (
     <>
-      <div className="min-h-screen p-8">
+      <div className="min-h-screen p-4 sm:p-8">
         <main className="max-w-2xl mx-auto mb-32">
           {subscriptions.length > 0 ? (
             <>
               <div>
-                <div className="sticky top-0 flex flex-row justify-between items-end mb-4 bg-gray-50 z-10 py-4">
-                  <div
-                    className="flex flex-row gap-1 items-end cursor-pointer hover:opacity-75 transition-opacity rounded-lg p-2 hover:bg-gray-100"
-                    onClick={() => setShowYearlyTotal(!showYearlyTotal)}
-                  >
-                    <p className="text-2xl font-bold">
-                      $
-                      {showYearlyTotal
-                        ? calculateYearlyTotal().toLocaleString("en-US", {
-                            maximumFractionDigits: 0,
-                          })
-                        : calculateMonthlyTotal().toLocaleString("en-US", {
-                            maximumFractionDigits: 0,
-                          })}
-                    </p>
-                    <p className="text-xs mb-1">
-                      per {showYearlyTotal ? "year" : "month"}
-                    </p>
-                  </div>
-                  <div className="flex gap-1">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="rounded-full bg-gray-100 hover:bg-gray-200 hidden"
-                        >
-                          <PlusIcon className="" />
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="h-[95vh] sm:h-auto p-6 overflow-y-auto">
-                        <form
-                          onSubmit={handleSubmit}
-                          className="flex flex-col h-full space-y-4"
-                        >
-                          <DialogHeader className="sm:p-0 relative">
-                            <DialogTitle className="text-center pt-4">
-                              {editingId
-                                ? `${formData.title || "Subscription"}`
-                                : formData.title
-                                  ? `${formData.title}`
-                                  : "Add New Subscription"}
-                            </DialogTitle>
-                          </DialogHeader>
-
-                          <div className="space-y-4">
-                            <div className="space-y-2">
-                              <Label htmlFor="title">Title</Label>
-                              <Input
-                                id="title"
-                                autoFocus={!editingId}
-                                value={formData.title}
-                                onChange={(e) =>
-                                  setFormData({
-                                    ...formData,
-                                    title: e.target.value,
-                                  })
-                                }
-                              />
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label htmlFor="category">Category</Label>
-                              <Select
-                                value={formData.category}
-                                onValueChange={(value: CategoryType) =>
-                                  setFormData({ ...formData, category: value })
-                                }
-                              >
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {categories.map((category) => (
-                                    <SelectItem
-                                      key={category.value}
-                                      value={category.value}
-                                    >
-                                      <div className="flex items-center gap-2">
-                                        {(() => {
-                                          const Icon = category.icon;
-                                          return <Icon className="h-4 w-4" />;
-                                        })()}
-                                        {category.label}
-                                      </div>
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label htmlFor="amount">Amount</Label>
-                              <Input
-                                id="amount"
-                                type="number"
-                                step="1"
-                                placeholder="0.00"
-                                value={formData.amount || ""}
-                                onChange={(e) =>
-                                  setFormData({
-                                    ...formData,
-                                    amount: parseFloat(e.target.value) || 0,
-                                  })
-                                }
-                              />
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label htmlFor="frequency">Frequency</Label>
-                              <Select
-                                value={formData.frequency}
-                                onValueChange={(value) =>
-                                  setFormData({
-                                    ...formData,
-                                    frequency: value as
-                                      | "weekly"
-                                      | "monthly"
-                                      | "yearly",
-                                  })
-                                }
-                              >
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="weekly">Weekly</SelectItem>
-                                  <SelectItem value="monthly">
-                                    Monthly
-                                  </SelectItem>
-                                  <SelectItem value="yearly">Yearly</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label htmlFor="startDate">Start Date</Label>
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <Button
-                                    variant={"outline"}
-                                    className={
-                                      "w-full justify-start text-left font-normal"
-                                    }
-                                  >
-                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {formData.startDate ? (
-                                      format(formData.startDate, "PPP")
-                                    ) : (
-                                      <span>Pick a date</span>
-                                    )}
-                                  </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                  <Calendar
-                                    mode="single"
-                                    selected={formData.startDate}
-                                    onSelect={(date) =>
-                                      setFormData({
-                                        ...formData,
-                                        startDate: date || new Date(),
-                                      })
-                                    }
-                                    initialFocus
-                                  />
-                                </PopoverContent>
-                              </Popover>
-                            </div>
-
-                            <div className="flex items-center space-x-2">
-                              <Checkbox
-                                id="notifyBeforeRenewal"
-                                checked={formData.notifyBeforeRenewal}
-                                onCheckedChange={(checked) =>
-                                  setFormData({
-                                    ...formData,
-                                    notifyBeforeRenewal: checked as boolean,
-                                  })
-                                }
-                              />
-                              <Label htmlFor="notifyBeforeRenewal">
-                                Notify before renewal
-                              </Label>
-                            </div>
-                          </div>
-
-                          <div className="fixed sm:relative bottom-0 left-0 right-0 p-6 sm:p-0 bg-white border-t sm:border-0 space-y-2">
-                            {editingId && (
-                              <div className="flex gap-2">
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  className="w-full text-red-500 border-red-500 hover:bg-red-500 hover:text-white"
-                                  onClick={() => handleDelete(editingId)}
-                                >
-                                  Delete Subscription
-                                </Button>
-                                <Button type="submit" className="w-full">
-                                  Save Changes
-                                </Button>
-                              </div>
-                            )}
-                            {!editingId && (
-                              <Button type="submit" className="w-full">
-                                Add Subscription
-                              </Button>
-                            )}
-                          </div>
-                        </form>
-                      </DialogContent>
-                    </Dialog>
-                    <Dialog
-                      open={showEditDialog}
-                      onOpenChange={(open) => {
-                        setShowEditDialog(open);
-                        if (!open) {
-                          resetForm();
-                        }
-                      }}
-                      defaultOpen={false}
-                      modal={true}
+                <div className="sticky top-0 flex flex-col bg-gray-50 z-10 py-2 sm:py-4">
+                  <div className="flex flex-row justify-between items-end mb-2">
+                    <div
+                      className="flex flex-row gap-1 items-end cursor-pointer hover:opacity-75 transition-opacity rounded-lg p-2 hover:bg-gray-100"
+                      onClick={() => setShowYearlyTotal(!showYearlyTotal)}
                     >
-                      <DialogContent
-                        className="h-[95vh] sm:h-auto p-6 overflow-y-auto"
-                        onOpenAutoFocus={(e) => {
-                          if (editingId) {
-                            e.preventDefault();
-                          }
-                        }}
-                      >
-                        <form
-                          onSubmit={handleSubmit}
-                          className="flex flex-col h-full"
-                        >
-                          <div className="flex-1">
+                      <p className="text-2xl font-bold">
+                        $
+                        {showYearlyTotal
+                          ? calculateYearlyTotal().toLocaleString("en-US", {
+                              maximumFractionDigits: 0,
+                            })
+                          : calculateMonthlyTotal().toLocaleString("en-US", {
+                              maximumFractionDigits: 0,
+                            })}
+                      </p>
+                      <p className="text-xs mb-1">
+                        per {showYearlyTotal ? "year" : "month"}
+                      </p>
+                    </div>
+                    <div className="flex gap-1">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="rounded-full bg-gray-100 hover:bg-gray-200 hidden"
+                          >
+                            <PlusIcon className="" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="h-[95vh] sm:h-auto p-6 overflow-y-auto">
+                          <form
+                            onSubmit={handleSubmit}
+                            className="flex flex-col h-full space-y-4"
+                          >
                             <DialogHeader className="sm:p-0 relative">
                               <DialogTitle className="text-center pt-4">
                                 {editingId
@@ -594,7 +422,7 @@ export default function Home() {
                               </DialogTitle>
                             </DialogHeader>
 
-                            <div className="space-y-4 mb-24 sm:mb-0">
+                            <div className="space-y-4">
                               <div className="space-y-2">
                                 <Label htmlFor="title">Title</Label>
                                 <Input
@@ -741,103 +569,377 @@ export default function Home() {
                                 </Label>
                               </div>
                             </div>
-                          </div>
 
-                          <div className="mt-8 sm:static fixed bottom-0 left-0 right-0 p-6 sm:p-0 bg-white border-t sm:border-0">
-                            {editingId && (
-                              <div className="flex gap-2">
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  className="w-full text-red-500 border-red-500 hover:bg-red-500 hover:text-white"
-                                  onClick={() => handleDelete(editingId)}
-                                >
-                                  Delete Subscription
-                                </Button>
+                            <div className="fixed sm:relative bottom-0 left-0 right-0 p-6 sm:p-0 bg-white border-t sm:border-0 space-y-2">
+                              {editingId && (
+                                <div className="flex gap-2">
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="w-full text-red-500 border-red-500 hover:bg-red-500 hover:text-white"
+                                    onClick={() => handleDelete(editingId)}
+                                  >
+                                    Delete Subscription
+                                  </Button>
+                                  <Button type="submit" className="w-full">
+                                    Save Changes
+                                  </Button>
+                                </div>
+                              )}
+                              {!editingId && (
                                 <Button type="submit" className="w-full">
-                                  Save Changes
+                                  Add Subscription
                                 </Button>
-                              </div>
-                            )}
-                            {!editingId && (
-                              <Button type="submit" className="w-full">
-                                Add Subscription
-                              </Button>
-                            )}
-                          </div>
-                        </form>
-                      </DialogContent>
-                    </Dialog>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="rounded-full"
+                              )}
+                            </div>
+                          </form>
+                        </DialogContent>
+                      </Dialog>
+                      <Dialog
+                        open={showEditDialog}
+                        onOpenChange={(open) => {
+                          setShowEditDialog(open);
+                          if (!open) {
+                            resetForm();
+                          }
+                        }}
+                        defaultOpen={false}
+                        modal={true}
+                      >
+                        <DialogContent
+                          className="h-[95vh] sm:h-auto p-6 overflow-y-auto"
+                          onOpenAutoFocus={(e) => {
+                            if (editingId) {
+                              e.preventDefault();
+                            }
+                          }}
                         >
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-1" align="end">
-                        <div className="flex flex-col space-y-2">
+                          <form
+                            onSubmit={handleSubmit}
+                            className="flex flex-col h-full"
+                          >
+                            <div className="flex-1">
+                              <DialogHeader className="sm:p-0 relative">
+                                <DialogTitle className="text-center pt-4">
+                                  {editingId
+                                    ? `${formData.title || "Subscription"}`
+                                    : formData.title
+                                      ? `${formData.title}`
+                                      : "Add New Subscription"}
+                                </DialogTitle>
+                              </DialogHeader>
+
+                              <div className="space-y-4 mb-24 sm:mb-0">
+                                <div className="space-y-2">
+                                  <Label htmlFor="title">Title</Label>
+                                  <Input
+                                    id="title"
+                                    autoFocus={!editingId}
+                                    value={formData.title}
+                                    onChange={(e) =>
+                                      setFormData({
+                                        ...formData,
+                                        title: e.target.value,
+                                      })
+                                    }
+                                  />
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label htmlFor="category">Category</Label>
+                                  <Select
+                                    value={formData.category}
+                                    onValueChange={(value: CategoryType) =>
+                                      setFormData({
+                                        ...formData,
+                                        category: value,
+                                      })
+                                    }
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {categories.map((category) => (
+                                        <SelectItem
+                                          key={category.value}
+                                          value={category.value}
+                                        >
+                                          <div className="flex items-center gap-2">
+                                            {(() => {
+                                              const Icon = category.icon;
+                                              return (
+                                                <Icon className="h-4 w-4" />
+                                              );
+                                            })()}
+                                            {category.label}
+                                          </div>
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label htmlFor="amount">Amount</Label>
+                                  <Input
+                                    id="amount"
+                                    type="number"
+                                    step="1"
+                                    placeholder="0.00"
+                                    value={formData.amount || ""}
+                                    onChange={(e) =>
+                                      setFormData({
+                                        ...formData,
+                                        amount: parseFloat(e.target.value) || 0,
+                                      })
+                                    }
+                                  />
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label htmlFor="frequency">Frequency</Label>
+                                  <Select
+                                    value={formData.frequency}
+                                    onValueChange={(value) =>
+                                      setFormData({
+                                        ...formData,
+                                        frequency: value as
+                                          | "weekly"
+                                          | "monthly"
+                                          | "yearly",
+                                      })
+                                    }
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="weekly">
+                                        Weekly
+                                      </SelectItem>
+                                      <SelectItem value="monthly">
+                                        Monthly
+                                      </SelectItem>
+                                      <SelectItem value="yearly">
+                                        Yearly
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label htmlFor="startDate">Start Date</Label>
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                      <Button
+                                        variant={"outline"}
+                                        className={
+                                          "w-full justify-start text-left font-normal"
+                                        }
+                                      >
+                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                        {formData.startDate ? (
+                                          format(formData.startDate, "PPP")
+                                        ) : (
+                                          <span>Pick a date</span>
+                                        )}
+                                      </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0">
+                                      <Calendar
+                                        mode="single"
+                                        selected={formData.startDate}
+                                        onSelect={(date) =>
+                                          setFormData({
+                                            ...formData,
+                                            startDate: date || new Date(),
+                                          })
+                                        }
+                                        initialFocus
+                                      />
+                                    </PopoverContent>
+                                  </Popover>
+                                </div>
+
+                                <div className="flex items-center space-x-2">
+                                  <Checkbox
+                                    id="notifyBeforeRenewal"
+                                    checked={formData.notifyBeforeRenewal}
+                                    onCheckedChange={(checked) =>
+                                      setFormData({
+                                        ...formData,
+                                        notifyBeforeRenewal: checked as boolean,
+                                      })
+                                    }
+                                  />
+                                  <Label htmlFor="notifyBeforeRenewal">
+                                    Notify before renewal
+                                  </Label>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="mt-8 sm:static fixed bottom-0 left-0 right-0 p-6 sm:p-0 bg-white border-t sm:border-0">
+                              {editingId && (
+                                <div className="flex gap-2">
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="w-full text-red-500 border-red-500 hover:bg-red-500 hover:text-white"
+                                    onClick={() => handleDelete(editingId)}
+                                  >
+                                    Delete Subscription
+                                  </Button>
+                                  <Button type="submit" className="w-full">
+                                    Save Changes
+                                  </Button>
+                                </div>
+                              )}
+                              {!editingId && (
+                                <Button type="submit" className="w-full">
+                                  Add Subscription
+                                </Button>
+                              )}
+                            </div>
+                          </form>
+                        </DialogContent>
+                      </Dialog>
+                      <Popover>
+                        <PopoverTrigger asChild>
                           <Button
                             variant="ghost"
-                            className="w-full justify-start"
-                            onClick={() => {
-                              setShowCategoriesDialog(true);
-                              const popoverTrigger = document.querySelector(
-                                '[data-state="open"]',
-                              );
-                              if (popoverTrigger) {
-                                (popoverTrigger as HTMLButtonElement).click();
-                              }
-                            }}
+                            size="icon"
+                            className="rounded-full"
                           >
-                            <LayoutGrid className="h-4 w-4 mr-2" />
-                            Categories
+                            <MoreVertical className="h-4 w-4" />
                           </Button>
-                          <Button
-                            variant="ghost"
-                            className="w-full justify-start"
-                            asChild
-                          >
-                            <a href="mailto:recurwise@gmail.com">
-                              <HelpCircle className="h-4 w-4 mr-2" />
-                              Support
-                            </a>
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            className="w-full justify-start"
-                            onClick={handleLogout}
-                          >
-                            <LogOut className="h-4 w-4 mr-2" />
-                            Log out
-                          </Button>
-                          <div className="h-px bg-gray-100 w-full" />
-                          <Button
-                            variant="ghost"
-                            className="w-full justify-start rounded-full opacity-50 cursor-not-allowed"
-                            disabled
-                          >
-                            <ArrowUpCircle className="h-4 w-4 mr-2" />
-                            Upgrade
-                          </Button>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-1" align="end">
+                          <div className="flex flex-col space-y-2">
+                            <Button
+                              variant="ghost"
+                              className="w-full justify-start"
+                              onClick={() => {
+                                setShowCategoriesDialog(true);
+                                const popoverTrigger = document.querySelector(
+                                  '[data-state="open"]',
+                                );
+                                if (popoverTrigger) {
+                                  (popoverTrigger as HTMLButtonElement).click();
+                                }
+                              }}
+                            >
+                              <LayoutGrid className="h-4 w-4 mr-2" />
+                              Categories
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              className="w-full justify-start"
+                              asChild
+                            >
+                              <a href="mailto:recurwise@gmail.com">
+                                <HelpCircle className="h-4 w-4 mr-2" />
+                                Support
+                              </a>
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              className="w-full justify-start"
+                              onClick={handleLogout}
+                            >
+                              <LogOut className="h-4 w-4 mr-2" />
+                              Log out
+                            </Button>
+                            <div className="h-px bg-gray-100 w-full" />
+                            <Button
+                              variant="ghost"
+                              className="w-full justify-start rounded-full opacity-50 cursor-not-allowed"
+                              disabled
+                            >
+                              <ArrowUpCircle className="h-4 w-4 mr-2" />
+                              Upgrade
+                            </Button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
                   </div>
+                  <Tabs
+                    defaultValue="date"
+                    value={view}
+                    onValueChange={(v) => setView(v as typeof view)}
+                    className="w-full"
+                  >
+                    <TabsList className="w-full sm:w-auto bg-transparent">
+                      <TabsTrigger value="date">By renewal date</TabsTrigger>
+                      <TabsTrigger value="category">By category</TabsTrigger>
+                      <TabsTrigger value="amount">By amount</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
                 </div>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    {subscriptions.map((sub) => (
-                      <SubscriptionCard
-                        key={sub.id}
-                        sub={sub}
-                        onEdit={handleEdit}
-                      />
-                    ))}
-                  </div>
+                <div className="space-y-4 mt-4">
+                  {view === "date" && (
+                    <div className="space-y-2">
+                      {subscriptions.map((sub) => (
+                        <SubscriptionCard
+                          key={sub.id}
+                          sub={sub}
+                          onEdit={handleEdit}
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  {view === "category" && (
+                    <div className="space-y-6">
+                      {groupByCategory().map((group) => (
+                        <div key={group.value} className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              {(() => {
+                                const Icon = group.icon;
+                                return <Icon className="h-4 w-4" />;
+                              })()}
+                              <h3 className="font-medium">{group.label}</h3>
+                            </div>
+                            <p className="text-sm text-gray-500">
+                              $
+                              {group.monthlyTotal.toLocaleString("en-US", {
+                                maximumFractionDigits: 0,
+                              })}
+                              /mo
+                            </p>
+                          </div>
+                          <div className="space-y-2">
+                            {group.subscriptions.map((sub) => (
+                              <SubscriptionCard
+                                key={sub.id}
+                                sub={sub}
+                                onEdit={handleEdit}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {view === "amount" && (
+                    <div className="space-y-2">
+                      {[...subscriptions]
+                        .sort(
+                          (a, b) => getMonthlyAmount(b) - getMonthlyAmount(a),
+                        )
+                        .map((sub) => (
+                          <SubscriptionCard
+                            key={sub.id}
+                            sub={sub}
+                            onEdit={handleEdit}
+                          />
+                        ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
