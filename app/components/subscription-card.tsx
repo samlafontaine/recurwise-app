@@ -68,7 +68,7 @@ const getNextRenewal = (startDate: Date, frequency: string) => {
 export function SubscriptionCard({ sub, onEdit }: SubscriptionCardProps) {
   return (
     <div
-      className="border rounded-lg px-4 py-2 relative bg-white hover:border-gray-300"
+      className="border rounded-lg px-4 py-2 relative bg-white hover:border-gray-500"
       onClick={() => onEdit(sub)}
     >
       <div className="cursor-pointer transition-colors">
