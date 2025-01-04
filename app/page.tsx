@@ -342,17 +342,6 @@ export default function Home() {
     }
   };
 
-  const getMonthlyAmount = (sub: Subscription) => {
-    switch (sub.frequency) {
-      case "weekly":
-        return (sub.amount * 52) / 12;
-      case "yearly":
-        return sub.amount / 12;
-      default:
-        return sub.amount;
-    }
-  };
-
   const groupByCategory = () => {
     const grouped = categories
       .map((category) => ({
